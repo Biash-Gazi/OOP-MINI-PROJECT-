@@ -268,11 +268,81 @@ public class AMSApp extends Application {
     }
 
     private void manageSubsidies() {
-        // Simple demonstration of subsidy management
-        Alert alert = new Alert(Alert.AlertType.INFORMATION, "Subsidy Management: Not implemented yet.");
-        alert.showAndWait();
+        VBox subsidyBox = new VBox(10);
+        Label instructionLabel = new Label("Manage Subsidies");
+
+        ListView<String> subsidyListView = new ListView<>();
+        Map<String, Double> subsidies = new HashMap<>(); // Key: Farmer Name, Value: Subsidy Amount
+
+        // Initialize with some sample data
+        subsidies.put("Farmer A", 1000.0);
+        subsidies.put("Farmer B", 500.0);
+        updateSubsidiesView(subsidyListView, subsidies);
+
+        // Button to add a subsidy
+        Button addSubsidyBtn = new Button("Add Subsidy");
+        addSubsidyBtn.setOnAction(e -> {
+            TextInputDialog dialog = new TextInputDialog();
+            dialog.setTitle("Add Subsidy");
+            dialog.setHeaderText("Enter Farmer Name and Amount (comma separated):");
+            dialog.setContentText("Format: Name, Amount");
+
+            dialog.showAndWait().ifPresent(input -> {
+                String[] parts = input.split(",");
+                if (parts.length == 2) {
+                    String farmerName = parts[0].trim();
+                    double amount;
+                    try {
+                        amount = Double.parseDouble(parts[1].trim());
+                        subsidies.put(farmerName, subsidies.getOrDefault(farmerName, 0.0) + amount);
+                        updateSubsidiesView(subsidyListView, subsidies);
+                    } catch (NumberFormatException ex) {
+                        showErrorAlert("Invalid Input", "Please enter a valid number for the amount.");
+                    }
+                } else {
+                    showErrorAlert("Invalid Input", "Please use the format: Name, Amount");
+                }
+            });
+        });
+
+        // Button to remove a subsidy
+        Button removeSubsidyBtn = new Button("Remove Subsidy");
+        removeSubsidyBtn.setOnAction(e -> {
+            String selectedSubsidy = subsidyListView.getSelectionModel().getSelectedItem();
+            if (selectedSubsidy != null) {
+                String farmerName = selectedSubsidy.split(" - ")[0];
+                subsidies.remove(farmerName);
+                updateSubsidiesView(subsidyListView, subsidies);
+            } else {
+                showErrorAlert("No Selection", "Please select a subsidy to remove.");
+            }
+        });
+
+        // Button to go back
+        Button backBtn = new Button("Back");
+        backBtn.setOnAction(e -> showGovernmentOfficialPage());
+
+        subsidyBox.getChildren().addAll(instructionLabel, subsidyListView, addSubsidyBtn, removeSubsidyBtn, backBtn);
+        Scene scene = new Scene(subsidyBox, 400, 300);
+        primaryStage.setScene(scene);
     }
 
+    // Helper method to update the ListView displaying subsidies
+    private void updateSubsidiesView(ListView<String> subsidyListView, Map<String, Double> subsidies) {
+        subsidyListView.getItems().clear();
+        for (Map.Entry<String, Double> entry : subsidies.entrySet()) {
+            subsidyListView.getItems().add(entry.getKey() + " - Amount: " + entry.getValue());
+        }
+    }
+
+    // Helper method to show error alerts
+    private void showErrorAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
     private void updateRealTimeData() {
         // Simple demonstration of updating real-time data
         TextInputDialog dialog = new TextInputDialog(realTimeData);
