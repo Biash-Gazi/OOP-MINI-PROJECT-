@@ -138,7 +138,7 @@ public class AMSApp extends Application {
         Button backBtn = new Button("Back");
 
         viewResponsesBtn.setOnAction(e -> viewQueryResponses(farmer));
-        newQueryBtn.setOnAction(e -> enterFarmerQuery());
+        newQueryBtn.setOnAction(e -> enterFarmerQuery(farmer));
         backBtn.setOnAction(e -> showFarmerMenu(farmer));
 
         queryMenu.getChildren().addAll(viewResponsesBtn, newQueryBtn, backBtn);
@@ -187,20 +187,23 @@ public class AMSApp extends Application {
 
     private void displayRealTimeData() {
         System.out.println("Real-Time Data: " + realTimeData);
+        Alert alert = new Alert(Alert.AlertType.INFORMATION, "Real-Time Data: " + realTimeData);
+        alert.showAndWait();
     }
 
-    private void enterFarmerQuery() {
+    private void enterFarmerQuery(Farmer farmer) {
         VBox queryBox = new VBox(10);
         TextArea queryArea = new TextArea("Enter your query here...");
         Button submitQueryBtn = new Button("Submit Query");
         Button backBtn = new Button("Back");
 
         submitQueryBtn.setOnAction(e -> {
-            farmerQueries.add(new Query(queryArea.getText(), "Unanswered"));
+            Query query = new Query(queryArea.getText(), farmer.getName());
+            farmerQueries.add(query);
             System.out.println("Query Submitted: " + queryArea.getText());
-            showFarmerMenu(database.getFarmerByName(queryArea.getText())); // Navigate to the farmer menu
+            showFarmerMenu(farmer); // Navigate to the farmer menu
         });
-        backBtn.setOnAction(e -> showFarmerMenu(database.getFarmerByName(queryArea.getText())));
+        backBtn.setOnAction(e -> showFarmerMenu(farmer));
 
         queryBox.getChildren().addAll(queryArea, submitQueryBtn, backBtn);
         Scene scene = new Scene(queryBox, 400, 300);
@@ -215,7 +218,8 @@ public class AMSApp extends Application {
         Button backBtn = new Button("Back");
 
         submitCropDetailsBtn.setOnAction(e -> {
-            System.out.println("Crop Details Submitted: " + cropTypeField.getText() + ", " + quantityField.getText());
+            // Handle crop detail submission logic here
+            System.out.println("Crop Type: " + cropTypeField.getText() + ", Quantity: " + quantityField.getText());
             showFarmerMenu(database.getFarmerByName(cropTypeField.getText())); // Navigate to the farmer menu
         });
         backBtn.setOnAction(e -> showFarmerMenu(database.getFarmerByName(cropTypeField.getText())));
@@ -264,11 +268,24 @@ public class AMSApp extends Application {
     }
 
     private void manageSubsidies() {
-        System.out.println("Managing Subsidies (not implemented yet)");
+        // Simple demonstration of subsidy management
+        Alert alert = new Alert(Alert.AlertType.INFORMATION, "Subsidy Management: Not implemented yet.");
+        alert.showAndWait();
     }
 
     private void updateRealTimeData() {
-        System.out.println("Updating Real-Time Data (not implemented yet)");
+        // Simple demonstration of updating real-time data
+        TextInputDialog dialog = new TextInputDialog(realTimeData);
+        dialog.setTitle("Update Real-Time Data");
+        dialog.setHeaderText("Enter new real-time data:");
+        dialog.setContentText("Data:");
+
+        dialog.showAndWait().ifPresent(newData -> {
+            realTimeData = newData;
+            System.out.println("Real-Time Data Updated: " + realTimeData);
+            Alert alert = new Alert(Alert.AlertType.INFORMATION, "Real-Time Data Updated!");
+            alert.showAndWait();
+        });
     }
 
     private void displayFarmerDetails() {
@@ -277,7 +294,9 @@ public class AMSApp extends Application {
 
         ListView<String> farmerListView = new ListView<>();
         for (Farmer farmer : database.getAllFarmers()) {
-            farmerListView.getItems().add(farmer.getName());
+            farmerListView.getItems().add(farmer.getName() + " - Aadhar: " + farmer.getAadhar() +
+                    ", Phone: " + farmer.getPhone() + ", Email: " + farmer.getEmail() +
+                    ", Annual Income: " + farmer.getAnnualIncome() + ", Crops: " + farmer.getCrops());
         }
 
         Button backBtn = new Button("Back");
@@ -351,6 +370,26 @@ class Farmer {
 
     public String getPassword() {
         return password;
+    }
+
+    public String getAadhar() {
+        return aadhar;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public double getAnnualIncome() {
+        return annualIncome;
+    }
+
+    public String getCrops() {
+        return crops;
     }
 
     // Getters for other fields can be added here
